@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sit737-monitoring-app
+
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: sit737-monitoring
+  template:
+    metadata:
+      labels:
+        app: sit737-monitoring
+    spec:
+      imagePullSecrets:
+        - name: regcred # <-- Add this line (your secret name)
+      containers:
+        - name: nodejs
+          image: us-central1-docker.pkg.dev/sit737-25t1-sudusinghe-7d559c5/sit737-docker-repo/sit737-monitoring:latest
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20
